@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 
 type ContactRequest = {
   name?: string;
@@ -6,8 +7,6 @@ type ContactRequest = {
   message?: string;
   company?: string;
 };
-
-const RESEND_API_URL = "https://api.resend.com/emails";
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -40,44 +39,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
   const to = process.env.CONTACT_TO_EMAIL;
-  const from = process.env.CONTACT_FROM_EMAIL || "Portfolio <onboarding@resend.dev>";
 
-  if (!apiKey || !to) {
+  if (!gmailUser || !gmailAppPassword || !to) {
     return NextResponse.json(
       { error: "Contact mail is not configured yet. Please email me directly." },
       { status: 500 }
     );
   }
 
-  const response = await fetch(RESEND_API_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
+  // Create transporter
+  const transporter = nodemailer.createTransporter({
+    service: "gmail",
+    auth: {
+      user: gmailUser,
+      pass: gmailAppPassword,
     },
-    body: JSON.stringify({
-      from,
-      to,
-      reply_to: senderEmail,
-      subject: `Portfolio intro from ${name}`,
-      text: [
-        `Name: ${name}`,
-        `Email: ${senderEmail}`,
-        "",
-        "Why they are visiting:",
-        message,
-      ].join("\n"),
-    }),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => null);
-    console.error("Resend contact email failed:", response.status, error);
-    const errorMessage =
-      error?.error ||
-      error?.message ||
+  const mailOptions = {
+    from: gmailUser,
+    to,
+    replyTo: senderEmail,
+    subject: `Portfolio intro from ${name}`,
+    text: [
+      `Name: ${name}`,
+      `Email: ${senderEmail}`,
+      "",
+      "Why they are visiting:",
+      message,
+    ].join("\n"),
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Gmail contact email failed:", error);
+    return NextResponse.json(
+      { error: "Failed to send email. Please try again later." },
+      { status: 500 }
+    );
+  }
+}
       "I could not send that message right now. Please email me directly.";
     return NextResponse.json({ error: errorMessage }, { status: 502 });
   }
