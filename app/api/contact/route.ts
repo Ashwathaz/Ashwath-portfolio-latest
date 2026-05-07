@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   }
 
   // Create transporter
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: gmailUser,
@@ -83,10 +83,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
-      "I could not send that message right now. Please email me directly.";
-    return NextResponse.json({ error: errorMessage }, { status: 502 });
-  }
-
-  return NextResponse.json({ ok: true });
 }
