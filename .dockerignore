@@ -1,0 +1,11 @@
+.git
+.next
+node_modules
+npm-debug.log*
+backend/__pycache__
+backend/venv
+.env
+.env.local
+.env.*.local
+!.env.example
+ts_errors.txt

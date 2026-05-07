@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - backend/.env
+    environment:
+      FRONTEND_URL: http://localhost:3000
+      FLASK_ENV: production
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/portfolio_content.json:/app/backend/portfolio_content.json
+      - ./public/uploads:/app/public/uploads
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000}
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
