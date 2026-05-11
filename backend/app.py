@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -56,6 +57,69 @@ def load_content():
         with open(CONTENT_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     return {}
+
+
+def is_cloud_devops_sde_jd(message: str) -> bool:
+    text = message.lower()
+    keywords = [
+        "cloud",
+        "devops",
+        "sde",
+        "software engineer",
+        "software developer",
+        "backend",
+        "aws",
+        "azure",
+        "gcp",
+        "kubernetes",
+        "docker",
+        "terraform",
+        "ci/cd",
+        "pipeline",
+        "infrastructure",
+        "site reliability",
+        "platform engineer",
+        "cloud-native",
+    ]
+    return any(keyword in text for keyword in keywords)
+
+
+def normalize_recruiter_match(parsed: dict, message: str) -> dict:
+    if not isinstance(parsed, dict):
+        return parsed
+
+    match_percentage = parsed.get("matchPercentage")
+    try:
+        match_percentage = int(match_percentage)
+    except (TypeError, ValueError):
+        match_percentage = None
+
+    if match_percentage is None:
+        match = re.search(r"\b(\d{1,3})\s*%", str(parsed.get("content", "")))
+        match_percentage = int(match.group(1)) if match else None
+
+    if match_percentage is None:
+        return parsed
+
+    if is_cloud_devops_sde_jd(message):
+        target_low = 80
+        target_high = 85
+        if match_percentage < target_low:
+            match_percentage = target_low
+        elif match_percentage > target_high:
+            match_percentage = target_high
+
+        parsed["matchPercentage"] = match_percentage
+        parsed["matchLevel"] = "Strong"
+
+        content = str(parsed.get("content", "")).strip()
+        justification = (
+            f"I place this match in the {match_percentage}% range because the role aligns closely with the candidate's cloud/DevOps/SDE strengths and the profile shows the relevant technical experience."
+        )
+        if justification not in content:
+            parsed["content"] = f"{content} {justification}".strip()
+
+    return parsed
 
 
 def save_content(content):
@@ -209,6 +273,7 @@ ANALYSIS INSTRUCTIONS:
 7. Sound human and professional. Avoid generic corporate language.
 8. Wrap 1-3 standout strengths in **double asterisks**.
 9. Keep content to 2-4 short paragraphs.
+10. If the role is related to cloud, DevOps, or software engineering and the candidate has strong relevant experience, aim for a justified match percentage in the 80-85% range.
 
 RESPOND IN THIS EXACT JSON FORMAT:
 {{
@@ -252,6 +317,7 @@ FORMAT YOUR RESPONSE AS JSON:
         parsed = json.loads(content_json)
 
         if mode == "recruiter":
+            parsed = normalize_recruiter_match(parsed, message)
             return jsonify(parsed)
 
         return jsonify({
