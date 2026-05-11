@@ -279,12 +279,11 @@ export default function PersonalSections() {
               transition={{ delay: i * 0.1 }}
               className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-transform hover:scale-[1.02]"
             >
-              <Image
+              <img
                 src={img}
                 alt={`Gallery image ${i + 1}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="h-full w-full object-cover"
+                loading="lazy"
               />
             </motion.div>
           ))}
