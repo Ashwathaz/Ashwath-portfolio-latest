@@ -84,7 +84,7 @@ export default function PasswordGate({
             <p className="text-center text-sm text-text-muted max-w-[260px]">
               This case study is under NDA.{" "}
               <a
-                href="mailto:ashwathaz@zohomail.in"
+                href="mailto:ashwathramj.devops@gmail.com"
                 className="text-primary underline underline-offset-2 hover:opacity-75 transition-opacity"
               >
                 Reach out
