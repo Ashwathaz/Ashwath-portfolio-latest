@@ -15,6 +15,7 @@ export default function Projects() {
   
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     align: 'start',
+    loop: true,
     dragFree: true,
     containScroll: 'trimSnaps'
   });
