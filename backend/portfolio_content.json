@@ -59,6 +59,55 @@
   ],
   "PROJECTS": [
     {
+      "id": "aws-infra",
+      "title": "AWS Cloud Infrastructure with EC2, ALB & S3",
+      "date": "Recent",
+      "image": "/aws_infra.png",
+      "link": "https://github.com/Ashwathaz/AWS-Infrastructure-with-EC2-Load-Balancer-and-S3.git",
+      "tech": "Terraform, AWS, Docker, Node.js, React",
+      "description": "A production-ready AWS setup using Terraform IaC — VPC networking, multi-AZ EC2 instances behind an Application Load Balancer, and S3 storage with a full Node.js + React stack.",
+      "points": [
+        "VPC with public subnets across two availability zones for fault tolerance.",
+        "Application Load Balancer with health checks routing to Dev and Prod EC2 instances.",
+        "Layered security groups — EC2 accepts traffic only from the ALB, never directly.",
+        "Full Terraform IaC: reproducible, version-controlled infrastructure deployable in minutes.",
+        "ECS Fargate services with RDS PostgreSQL and ElastiCache Redis in private subnets.",
+        "CI/CD pipeline with GitHub Actions for automated Docker build and ECR push."
+      ]
+    },
+    {
+      "id": "metadata-cicd",
+      "title": "Metadata-Driven CI/CD Pipeline",
+      "date": "Recent",
+      "image": "/cicd_pipeline.png",
+      "link": "https://github.com/Ashwathaz/metadata-driven-pipeline.git",
+      "tech": "Jenkins, Python, Docker, NGINX",
+      "description": "A Jenkins CI/CD pipeline that validates required project files before deployment. Configuration is read from metadata.json, Docker images are built versioned, and the app is served via an NGINX container.",
+      "points": [
+        "Fail-fast Python validator checks required files before any build step runs.",
+        "Metadata-driven port config in JSON — no hardcoded values inside the Jenkinsfile.",
+        "Versioned Docker images tagged with Jenkins BUILD_NUMBER for easy rollbacks.",
+        "NGINX Alpine container keeps the image lightweight and the deployment fast.",
+        "Automatic old-container cleanup before each new deployment to avoid name conflicts."
+      ]
+    },
+    {
+      "id": "monitoring-stack",
+      "title": "Prometheus & Grafana Monitoring Stack",
+      "date": "Recent",
+      "image": "/monitoring_stack.png",
+      "link": "https://github.com/Ashwathaz/monitoring-project-.git",
+      "tech": "Prometheus, Grafana, Docker, Linux",
+      "description": "A containerized observability stack that scrapes Node Exporter metrics from two remote instances, visualizes them in Grafana, and fires Prometheus alerts for CPU, memory, disk, and availability thresholds.",
+      "points": [
+        "Prometheus scrapes two Node Exporter targets every 15 seconds with labeled instance names.",
+        "Pre-built Grafana dashboard auto-provisioned via config — zero manual setup on first run.",
+        "Alert rules for high CPU, memory, disk usage (>85%) and unreachable exporters.",
+        "15-day metric retention with configurable environment variables and hot-reload support.",
+        "Node Exporter install script sets up a systemd service on remote instances in one command."
+      ]
+    },
+    {
       "id": "1",
       "title": "ECOMMERCE WEBSITE FOR GAMING ACCESSORIES",
       "date": "Jan 2024 - May 2024",
