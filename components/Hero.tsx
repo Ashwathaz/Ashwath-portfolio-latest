@@ -134,7 +134,7 @@ export default function Hero() {
           initial={{ opacity: 0, x: 40, scale: 0.9 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-          className="relative aspect-square w-full max-w-[340px] md:max-w-[420px] overflow-hidden rounded-full border-4 border-white shadow-2xl bg-neutral-100 md:-mr-16 lg:-mr-32"
+          className="relative aspect-[4/5] w-full max-w-[340px] md:max-w-[420px] overflow-hidden rounded-2xl border-4 border-white shadow-2xl bg-neutral-100 md:-mr-16 lg:-mr-32"
         >
           <Image
             src={heroImage}
