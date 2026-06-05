@@ -9,8 +9,8 @@
     "github": "https://github.com/Ashwathaz",
     "portfolio": "#",
     "location": "Chennai, TamilNadu",
-    "resumeUrl": "/Ashwath Ram.pdf",
-    "photoUrl": "/profile.jpg"
+    "resumeUrl": "/Ashwath .pdf",
+    "photoUrl": "/profile_new.png"
   },
   "ABOUT_TEXT": [
     "I'm a Cloud and DevOps practitioner focused on AWS infrastructure and containerized applications. I specialize in streamlining deployment processes by containerizing applications with Docker and establishing automated CI/CD pipelines alongside Terraform-based infrastructure.",

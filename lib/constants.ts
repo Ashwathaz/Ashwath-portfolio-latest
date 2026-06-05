@@ -12,7 +12,7 @@ export const SITE = {
   github: "https://github.com/Ashwathaz",
   portfolio: "#",
   location: "India",
-  resumeUrl: "/Ashwath Ram.pdf",
+  resumeUrl: "/Ashwath .pdf",
 } as const;
 
 export const NAV_LINKS = [
