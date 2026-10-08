@@ -23,6 +23,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
+  // Honeypot check for bots
   if (body.company) {
     return NextResponse.json({ ok: true });
   }
@@ -39,48 +40,84 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
   }
 
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
-  const to = process.env.CONTACT_TO_EMAIL;
+  const resendApiKey = process.env.RESEND_API_KEY?.trim();
+  const gmailUser = process.env.GMAIL_USER?.trim();
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, "").replace(/^["']|["']$/g, "");
+  const to = process.env.CONTACT_TO_EMAIL?.trim() || "ashwathramj.devops@gmail.com";
+  const from = process.env.CONTACT_FROM_EMAIL?.trim() || "Portfolio Contact <onboarding@resend.dev>";
 
-  if (!gmailUser || !gmailAppPassword || !to) {
-    return NextResponse.json(
-      { error: "Contact mail is not configured yet. Please email me directly." },
-      { status: 500 }
-    );
+  // 1. If RESEND_API_KEY is provided, use Resend API
+  if (resendApiKey && !resendApiKey.includes("your_resend_api_key")) {
+    try {
+      const resendResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to: [to],
+          reply_to: senderEmail,
+          subject: `Portfolio intro from ${name}`,
+          text: [
+            `Name: ${name}`,
+            `Email: ${senderEmail}`,
+            "",
+            "Why they are visiting:",
+            message,
+          ].join("\n"),
+        }),
+      });
+
+      if (resendResponse.ok) {
+        return NextResponse.json({ ok: true });
+      }
+
+      const errorText = await resendResponse.text();
+      console.error("Resend API error:", errorText);
+    } catch (error) {
+      console.error("Resend error:", error);
+    }
   }
 
-  // Create transporter
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: gmailUser,
-      pass: gmailAppPassword,
-    },
-  });
+  // 2. If GMAIL_USER & GMAIL_APP_PASSWORD are provided, use Gmail Nodemailer (Matches your screenshot!)
+  if (gmailUser && gmailAppPassword && !gmailAppPassword.includes("your-16-char")) {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: gmailUser,
+          pass: gmailAppPassword,
+        },
+      });
 
-  const mailOptions = {
-    from: gmailUser,
-    to,
-    replyTo: senderEmail,
-    subject: `Portfolio intro from ${name}`,
-    text: [
-      `Name: ${name}`,
-      `Email: ${senderEmail}`,
-      "",
-      "Why they are visiting:",
-      message,
-    ].join("\n"),
-  };
+      await transporter.sendMail({
+        from: gmailUser,
+        to,
+        replyTo: senderEmail,
+        subject: `Portfolio intro from ${name}`,
+        text: [
+          `Name: ${name}`,
+          `Email: ${senderEmail}`,
+          "",
+          "Why they are visiting:",
+          message,
+        ].join("\n"),
+      });
 
-  try {
-    await transporter.sendMail(mailOptions);
-    return NextResponse.json({ ok: true });
-  } catch (error) {
-    console.error("Gmail contact email failed:", error);
-    return NextResponse.json(
-      { error: "Failed to send email. Please try again later." },
-      { status: 500 }
-    );
+      return NextResponse.json({ ok: true });
+    } catch (error) {
+      console.error("Gmail contact email failed:", error);
+      return NextResponse.json(
+        { error: "Gmail authentication failed (Error 535). Please check GMAIL_APP_PASSWORD." },
+        { status: 500 }
+      );
+    }
   }
+
+  return NextResponse.json(
+    { error: "Email service is not configured yet. Please set RESEND_API_KEY or GMAIL_APP_PASSWORD in .env." },
+    { status: 500 }
+  );
 }
